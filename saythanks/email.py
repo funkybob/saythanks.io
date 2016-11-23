@@ -21,7 +21,6 @@ A Kenneth Reitz (me@kennethreitz.org) project.
 """
 
 
-
 def notify(note, email_address):
 
     # Say 'someone' if the byline is empty.
@@ -35,4 +34,4 @@ def notify(note, email_address):
     content = Content('text/plain', message)
 
     mail = Mail(from_address, subject, to_address, content)
-    response = sg.client.mail.send.post(request_body=mail.get())
+    sg.client.mail.send.post(request_body=mail.get())

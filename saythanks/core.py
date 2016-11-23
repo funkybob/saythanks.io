@@ -11,7 +11,6 @@ import json
 import requests
 
 from functools import wraps
-from uuid import uuid4
 from flask import Flask, request, session, render_template, url_for
 from flask import abort, redirect, Markup
 from raven.contrib.flask import Sentry
@@ -53,9 +52,9 @@ def requires_auth(f):
 @app.route('/')
 def index():
     return render_template('index.htm.j2',
-        callback_url=auth_callback_url,
-        auth_id=auth_id,
-        auth_domain=auth_domain)
+                           callback_url=auth_callback_url,
+                           auth_id=auth_id,
+                           auth_domain=auth_domain)
 
 
 @app.route('/inbox')
@@ -69,14 +68,18 @@ def inbox():
     inbox = storage.Inbox(profile['nickname'])
 
     # Send over the list of all given notes for the user.
-    return render_template('inbox.htm.j2', user=profile, notes=inbox.notes, inbox=inbox)
+    return render_template('inbox.htm.j2',
+                           user=profile,
+                           notes=inbox.notes,
+                           inbox=inbox)
+
 
 @app.route('/thanks')
 def thanks():
     return render_template('thanks.htm.j2',
-        callback_url=auth_callback_url,
-        auth_id=auth_id,
-        auth_domain=auth_domain)
+                           callback_url=auth_callback_url,
+                           auth_id=auth_id,
+                           auth_domain=auth_domain)
 
 
 @app.route('/to/<inbox>', methods=['GET'])
@@ -100,7 +103,6 @@ def submit_note(inbox):
     if not body:
         # Pretend that it was successful.
         return redirect(url_for('thanks'))
-
 
     # Store the incoming note to the database.
     note = inbox.submit_note(body=body, byline=byline)
@@ -127,8 +129,13 @@ def callback_handling():
     }
 
     # Fetch User info from Auth0.
-    token_info = requests.post(token_url, data=json.dumps(token_payload), headers=json_header).json()
-    user_url = 'https://{0}/userinfo?access_token={1}'.format(auth_domain, token_info['access_token'])
+    token_info = requests.post(token_url,
+                               data=json.dumps(token_payload),
+                               headers=json_header).json()
+    user_url = 'https://{0}/userinfo?access_token={1}'.format(
+        auth_domain,
+        token_info['access_token']
+    )
     user_info = requests.get(user_url).json()
 
     # Add the 'user_info' to Flask session.

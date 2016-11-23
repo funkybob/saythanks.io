@@ -17,6 +17,7 @@ db = records.Database()
 # Note: Some of these are a little fancy (send email and such).
 # --------------
 
+
 class Note(object):
     """A generic note of thankfulness."""
     def __init__(self):
@@ -41,14 +42,13 @@ class Note(object):
     def store(self):
         """Stores the Note instance to the database."""
         q = 'INSERT INTO notes (body, byline, inboxes_auth_id) VALUES (:body, :byline, :inbox)'
-        r = db.query(q, body=self.body, byline=self.byline, inbox=self.inbox.auth_id)
+        db.query(q, body=self.body, byline=self.byline, inbox=self.inbox.auth_id)
 
     def notify(self, email_address):
         # TODO: emails the user when they have received a new note of thanks.
         # get the email address from Auth0
 
         email.notify(self, email_address)
-
 
 
 class Inbox(object):
@@ -62,7 +62,6 @@ class Inbox(object):
         r = db.query(q, inbox=self.slug).all()
         return r[0]['auth_id']
 
-
     @classmethod
     def is_linked(cls, auth_id):
         q = 'SELECT * from inboxes where auth_id = :auth_id'
@@ -72,7 +71,7 @@ class Inbox(object):
     @classmethod
     def store(cls, slug, auth_id):
         q = 'INSERT into inboxes (slug, auth_id) VALUES (:slug, :auth_id)'
-        r = db.query(q, slug=slug, auth_id=auth_id)
+        db.query(q, slug=slug, auth_id=auth_id)
 
         return cls(slug)
 
@@ -100,20 +99,3 @@ class Inbox(object):
 
         notes = [Note.from_inbox(self.slug, n['body'], n['byline']) for n in r]
         return notes[::-1]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
